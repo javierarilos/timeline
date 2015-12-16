@@ -3,7 +3,7 @@
 """
 import sys
 from datetime import datetime
-from planning import parse
+import planning
 
 
 class Timeline:
@@ -16,12 +16,7 @@ class Timeline:
         self.events = []
 
     def parse(self, event_list):
-        """Parses event_list[:][ts_col] to datetime using ts_fmt
-
-        Returns a new list of rows (lists) where
-            row first column is the parsed datetime, the rest is the original row
-        """
-        return parse(self.ts_fmt, self.ts_col, event_list)
+        return planning.from_parse_datetimes(self.ts_fmt, self.ts_col, event_list)
 
     def is_valid(self, event_list, skip_first=False):
         """Validates event_list, returns True on valid list.
