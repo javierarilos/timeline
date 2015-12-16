@@ -24,14 +24,21 @@ class Timeline:
 
     def is_valid(self, event_list, skip_first=False):
         """Validates event_list, returns True on valid list.
-        - event_list is expected to: contain lists or tuples with a parseable datetime
-            in column self.ts_col using self.ts_fmt
+        - event_list is expected to: be a parsed event_list (see self.parse)
             events in event_list must be sorted by date from old to new.
         - skip_first indicates if first row should be skipped (eg: contains headers)
         """
         if not isinstance(event_list, list):
             return False
-        event_list_parsed = self.parse(event_list)
+        if len(event_list) < 2:
+            return False
+
+        first_row = 1 if skip_first else 0
+        previous_ts = event_list[first_row][self.ts_col]
+        for row in event_list[first_row+1:]:
+            curr_ts = row[self.ts_col]
+            if curr_ts < previous_ts:
+                return False
         return True
 
     def start(self, event_list, skip_first=False):
@@ -40,4 +47,6 @@ class Timeline:
         event_list is expected to be valid
         """
         parsed_event_list = self.parse(event_list)
-        self.validate(event_list, skip_first=skip_first)
+        is_valid = self.is_valid(parsed_event_list, skip_first=skip_first)
+        if not is_valid:
+            raise Exception('Given event list is not valid.')

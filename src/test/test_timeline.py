@@ -37,14 +37,37 @@ class TestTimeline(unittest.TestCase):
         with self.assertRaises(Exception):
             timln = timeline.Timeline(None)
 
-    def test_validate_ko_non_iterable(self):
+    def test_is_valid_ko_non_iterable(self):
         timln = timeline.Timeline(test_cb, ts_col=0, ts_fmt=a_format)
 
         is_valid = timln.is_valid(234)
 
         self.assertFalse(is_valid)
 
-    def test_validate_ok(self):
+    def test_is_valid_ko_short_timeline(self):
+        timln = timeline.Timeline(test_cb, ts_col=0, ts_fmt=a_format)
+
+        empty_timeline = timln.parse([])
+        self.assertFalse(timln.is_valid(empty_timeline))
+
+        tooshort_timeline = timln.parse([
+            ['2015-10-22 13:15:20', 'donald', 'mickey']
+        ])
+        self.assertFalse(timln.is_valid(tooshort_timeline))
+
+    def test_is_valid_ko_unsorted_timedates(self):
+        timln = timeline.Timeline(test_cb, ts_col=0, ts_fmt=a_format)
+
+        unsorted_timeline = timln.parse([
+            ['2015-10-22 13:15:21', 'mickey', 'pluto', 'yay'],
+            ['2015-10-22 13:15:20', 'donald', 'mickey']
+        ])  # second event ts is before firt's
+
+        is_valid = timln.is_valid(unsorted_timeline)
+
+        self.assertFalse(is_valid)
+
+    def test_is_valid_ok(self):
         timln = timeline.Timeline(test_cb, ts_col=0, ts_fmt=a_format)
 
         is_valid = timln.is_valid(a_timeline)
