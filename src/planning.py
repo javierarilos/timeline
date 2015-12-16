@@ -7,3 +7,23 @@ def from_parse_datetimes(ts_fmt, ts_col, event_list):
         first column is the parsed datetime, the rest is the original row
     """
     return [[datetime.strptime(evt[ts_col], ts_fmt)] + evt for evt in event_list]
+
+def is_valid(planning):
+    """Validates planning, returns True on valid list.
+    - planning is expected to: be a parsed planning (see self.parse)
+        events in planning must be sorted by date from old to new.
+    """
+    if not isinstance(planning, list):
+        return False
+
+    if len(planning) < 2:
+        return False
+
+    # datetimes must be sorted by date from old to new.
+    previous_ts = planning[0][0]
+    for row in planning[1:]:
+        curr_ts = row[0]
+        if curr_ts < previous_ts:
+            return False
+
+    return True

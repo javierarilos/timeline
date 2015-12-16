@@ -18,32 +18,16 @@ class Timeline:
     def parse(self, event_list):
         return planning.from_parse_datetimes(self.ts_fmt, self.ts_col, event_list)
 
-    def is_valid(self, event_list, skip_first=False):
-        """Validates event_list, returns True on valid list.
-        - event_list is expected to: be a parsed event_list (see self.parse)
-            events in event_list must be sorted by date from old to new.
-        - skip_first indicates if first row should be skipped (eg: contains headers)
-        """
-        if not isinstance(event_list, list):
-            return False
-        if len(event_list) < 2:
-            return False
-
-        first_row = 1 if skip_first else 0
-        previous_ts = event_list[first_row][self.ts_col]
-        for row in event_list[first_row+1:]:
-            curr_ts = row[self.ts_col]
-            if curr_ts < previous_ts:
-                return False
-        return True
+    def is_valid(self, planning_lst):
+        return planning.is_valid(planning_lst)
 
     def start(self, event_list, skip_first=False):
         """Starts calling back self.callback following the timeline specified by event_list.
         event_list is expected to be valid
         """
-        parsed_event_list = self.parse(event_list)
-        is_valid = self.is_valid(parsed_event_list, skip_first=skip_first)
+        planning = self.parse(event_list)
+        is_valid = planning.is_valid(planning, skip_first=skip_first)
         if not is_valid:
             import json
-            raise Exception('Given event list is not valid.' + json.dumps(parsed_event_list,
+            raise Exception('Given planning is not valid.' + json.dumps(planning,
                             sort_keys=False, indent=4, separators=(',', ': ')))
