@@ -1,4 +1,6 @@
 from datetime import datetime
+from time import sleep
+
 def from_parse_datetimes(ts_fmt, ts_col, event_list):
     """
     Returns a planning list by parsing datetimes in event_list[:][ts_col] to datetime using ts_fmt
@@ -27,3 +29,15 @@ def is_valid(planning):
             return False
 
     return True
+
+def start(planning, callback):
+    """Starts calling back self.callback following the timeline specified by event_list.
+    event_list is expected to be valid
+    """
+    previous_ts = planning[0][0]
+    for row in planning:
+        curr_ts = row[0]
+        increment = (curr_ts - previous_ts).seconds
+        sleep(increment)
+        callback(*row[1:])
+        previous_ts = curr_ts

@@ -31,3 +31,11 @@ class Timeline:
             import json
             raise Exception('Given planning is not valid.' + json.dumps(planning,
                             sort_keys=False, indent=4, separators=(',', ': ')))
+
+        first_row = 1 if skip_first else 0
+        previous_ts = event_list[first_row][self.ts_col]
+        for row in event_list[first_row:]:
+            curr_ts = row[self.ts_col]
+            sleep((curr_ts - previous_ts).seconds)
+            self.callback(*row[1:])
+            previous_ts = curr_ts

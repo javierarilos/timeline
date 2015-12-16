@@ -1,5 +1,5 @@
 import unittest
-import timeline
+import planning
 from datetime import datetime
 
 a_format = '%Y-%m-%d %H:%M:%S'
@@ -15,76 +15,54 @@ a_timeline = [
 ]
 
 
-def test_cb(original_datetime, *args):
-    print('called back from', original_datetime)
+def test_cb(*args):
+    print('-> called back from', args)
 
 
-class TestTimeline(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_timeline_creation(self):
-        timln = timeline.Timeline(test_cb, ts_col=1, ts_fmt=a_format)
-
-        self.assertEqual(timln.ts_col, 1)
-        self.assertEqual(timln.ts_fmt, a_format)
-        self.assertEqual(timln.callback, test_cb)
-
-    def test_timeline_callback_mandatory(self):
-        with self.assertRaises(Exception):
-            timln = timeline.Timeline(None)
-
+class TestPlanningIsValid(unittest.TestCase):
     def test_is_valid_ko_non_iterable(self):
-        timln = timeline.Timeline(test_cb, ts_col=0, ts_fmt=a_format)
-
-        is_valid = timln.is_valid(234)
+        is_valid = planning.is_valid(234)
 
         self.assertFalse(is_valid)
 
     def test_is_valid_ko_short_timeline(self):
-        timln = timeline.Timeline(test_cb, ts_col=0, ts_fmt=a_format)
+        empty_timeline = planning.from_parse_datetimes(a_format, 0, [])
+        is_empty_valid = planning.is_valid(empty_timeline)
+        self.assertFalse(is_empty_valid)
 
-        empty_timeline = timln.parse([])
-        self.assertFalse(timln.is_valid(empty_timeline))
-
-        tooshort_timeline = timln.parse([
-            ['2015-10-22 13:15:20', 'donald', 'mickey']
-        ])
-        self.assertFalse(timln.is_valid(tooshort_timeline))
+        only_one_event = [['2015-10-22 13:15:20', 'donald', 'mickey']]
+        tooshort_timeline = planning.from_parse_datetimes(a_format, 0, only_one_event)
+        is_too_short_valid = planning.is_valid(tooshort_timeline)
+        self.assertFalse(is_too_short_valid)
 
     def test_is_valid_ko_unsorted_timedates(self):
-        timln = timeline.Timeline(test_cb, ts_col=0, ts_fmt=a_format)
-
-        unsorted_timeline = timln.parse([
+        unsorted_planning = planning.from_parse_datetimes(a_format, 0, [
             ['2015-10-22 13:15:21', 'mickey', 'pluto', 'yay'],
             ['2015-10-22 13:15:20', 'donald', 'mickey']
         ])  # second event ts is before firt's
 
-        is_valid = timln.is_valid(unsorted_timeline)
+        is_unsorted_valid = planning.is_valid(unsorted_planning)
 
-        self.assertFalse(is_valid)
+        self.assertFalse(is_unsorted_valid)
 
     def test_is_valid_ok(self):
-        timln = timeline.Timeline(test_cb, ts_col=0, ts_fmt=a_format)
+        ok_planning = planning.from_parse_datetimes(a_format, 0, a_timeline)
 
-        is_valid = timln.is_valid(a_timeline)
+        is_valid_ok_planning = planning.is_valid(ok_planning)
 
-        self.assertTrue(is_valid)
+        self.assertTrue(is_valid_ok_planning)
 
+
+class TestPlanningFromParseDatetimes(unittest.TestCase):
     def test_parse_ok(self):
-        timln = timeline.Timeline(test_cb, ts_col=0, ts_fmt=a_format)
-
         test_timeline = [
             ['2015-10-22 13:15:20', 'donald', 'mickey'],
             ['2015-10-22 13:15:21', 'mickey', 'pluto', 'yay']
         ]
 
-        parsed_timeline = timln.parse(test_timeline)
+        parsed_planning = planning.from_parse_datetimes(a_format, 0, test_timeline)
 
-        for parsed_row, original_row in zip(parsed_timeline, test_timeline):
+        for parsed_row, original_row in zip(parsed_planning, test_timeline):
             parsed_datetime = parsed_row[0]
             self.assertIsInstance(parsed_datetime, datetime)
             self.assertEqual(parsed_datetime.year, 2015)
@@ -97,12 +75,10 @@ class TestTimeline(unittest.TestCase):
             self.assertEqual(parsed_row[1:], original_row)
 
     def test_parse_ko_bad_dateformat(self):
-        timln = timeline.Timeline(test_cb, ts_col=0, ts_fmt=a_format)
-
         test_timeline = [
             ['BADDATEFORMAT', 'donald', 'mickey'],
             ['2015-10-22 13:15:21', 'mickey', 'pluto', 'yay']
         ]
 
         with self.assertRaises(ValueError):
-            parsed_timeline = timln.parse(test_timeline)
+            parsed_planning = planning.from_parse_datetimes(a_format, 0, test_timeline)
