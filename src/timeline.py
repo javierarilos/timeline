@@ -20,7 +20,7 @@ class Timeline:
         Returns a new list of rows (lists) where
             row first column is the parsed datetime, the rest is the original row
         """
-        return list(map(lambda event: [datetime.strptime(event[0], self.ts_fmt)] + event, event_list))
+        return [[datetime.strptime(evt[self.ts_col], self.ts_fmt)] + evt for evt in event_list]
 
     def is_valid(self, event_list, skip_first=False):
         """Validates event_list, returns True on valid list.
