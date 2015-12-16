@@ -43,10 +43,11 @@ class Timeline:
 
     def start(self, event_list, skip_first=False):
         """Starts calling back self.callback following the timeline specified by event_list.
-
         event_list is expected to be valid
         """
         parsed_event_list = self.parse(event_list)
         is_valid = self.is_valid(parsed_event_list, skip_first=skip_first)
         if not is_valid:
-            raise Exception('Given event list is not valid.')
+            import json
+            raise Exception('Given event list is not valid.' + json.dumps(parsed_event_list,
+                            sort_keys=False, indent=4, separators=(',', ': ')))
