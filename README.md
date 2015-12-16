@@ -2,6 +2,21 @@
 Timeline calls your code back following a given time distribution (a planning).
 The planning can be easily imported from different formats (eg. from a CSV with timestamps).
 
+## planning
+A planning is a list in the form:
+```python
+[
+    [datetime1, arg2, arg3, arg4...],
+    [datetime2, arg2, arg3, arg4...],
+    ...
+]
+```
+
+* **planning.start(a_planning)** replays the events by calling a callback     in the same time sequence starting now.
+* **planning.is_valid(a_planning)** validates a given planning
+* **planning.from_parse_datetimes** converts a list of lists to a planning by parsing a given column to a datetime which is added to first column.
+
+
 ## sample usage
 
 ```python

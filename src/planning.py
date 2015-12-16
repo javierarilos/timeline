@@ -1,5 +1,9 @@
+""" Planning module.
+"""
+
 from datetime import datetime
 from time import sleep
+
 
 def from_parse_datetimes(ts_fmt, ts_col, event_list):
     """
@@ -9,6 +13,7 @@ def from_parse_datetimes(ts_fmt, ts_col, event_list):
         first column is the parsed datetime, the rest is the original row
     """
     return [[datetime.strptime(evt[ts_col], ts_fmt)] + evt for evt in event_list]
+
 
 def is_valid(planning):
     """Validates planning, returns True on valid list.
@@ -29,6 +34,7 @@ def is_valid(planning):
             return False
 
     return True
+
 
 def start(planning, callback):
     """Starts calling back self.callback following the timeline specified by event_list.
