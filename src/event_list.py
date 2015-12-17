@@ -7,6 +7,6 @@ def from_csv(csv_filename, separator=';', skip_first=True):
         if skip_first:
             csv_file.readline()
         for csv_line in csv_file.readlines():
-            splitted = csv_line[:-1].split(separator)
+            splitted = csv_line.strip().split(separator)
             event_list.append(splitted)
     return event_list
