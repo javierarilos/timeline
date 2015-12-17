@@ -20,7 +20,7 @@ A planning is a list in the form:
 ## sample usage
 
 ```python
-import planning
+from timeline import planning
 
 a_timeline = [
     ['2015-10-22 13:15:20', 'donald', 'mickey', 'supper together', 'hi there, how about tonight?'],
